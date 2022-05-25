@@ -427,6 +427,7 @@ const actions: ActionTree<JobState, RootState> = {
     try {
       resp = await JobService.scheduleJob({ ...job.runtimeData, ...payload });
       if (resp.status == 200 && !hasError(resp)) {
+        showToast(translate('Service has been scheduled'));
         const jobs = await dispatch('fetchJobs', {
           inputFields: {
             'systemJobEnumId': payload.systemJobEnumId,
