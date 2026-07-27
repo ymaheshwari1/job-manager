@@ -128,7 +128,7 @@
         </ion-card>
 
         <div class="pagination">
-          <ion-button fill="outline" :disabled="pageIndex === 0" @click="goToPreviousPage">
+          <ion-button fill="outline" :disabled="pageIndex === 0 || isLoading" @click="goToPreviousPage">
             {{ translate("Previous") }}
           </ion-button>
           <div class="page-input">
@@ -150,6 +150,7 @@
         </div>
         <SystemMessageList
           :messages="messages"
+          :is-loading="isLoading"
           :empty-message="translate('No system messages found for the selected filters.')"
         />
       </main>
@@ -174,6 +175,7 @@ import {
   IonToolbar,
   onIonViewWillEnter
 } from "@ionic/vue";
+import { closeCircleOutline } from "ionicons/icons";
 import { computed, ref, watch } from "vue";
 import { translate } from "@common";
 import { closeCircleOutline } from "ionicons/icons";
@@ -195,6 +197,7 @@ const selectedParentTypeId = ref("");
 const selectedRemoteId = ref("");
 const selectedIsOutgoing = ref("");
 const pageIndex = ref(0);
+const isInitialLoading = ref(true);
 
 // When direction filter is active, all fetched records are filtered client-side
 const filteredMessages = computed(() => {
@@ -255,6 +258,10 @@ const loadMessages = async () => {
 
   if(selectedRemoteId.value) {
     payload["systemMessageRemoteId"] = selectedRemoteId.value
+  }
+
+  if(selectedIsOutgoing.value) {
+    payload["isOutgoing"] = selectedIsOutgoing.value
   }
 
   await store.fetchSystemMessages(payload);
