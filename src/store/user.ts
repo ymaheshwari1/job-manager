@@ -1,7 +1,7 @@
 import { DateTime, Settings } from "luxon";
 import { defineStore } from "pinia";
 import { isAppCompatible, redirectToLegacyApp, showToast } from "@/utils";
-import { api, commonUtil, translate } from "@common";
+import { api, commonUtil, cookieHelper, translate } from "@common";
 import logger from "@/logger";
 import { useAuth } from "@common/composables/useAuth";
 import { useUtilStore } from "./util";
@@ -76,6 +76,8 @@ export const useUserStore = defineStore("user", {
         if (this.current.timeZone) {
           Settings.defaultZone = this.current.timeZone;
         }
+
+        this.oms = cookieHelper().get("oms") || '';
         this.fetchStatus.profile = 'success'
       } catch(error: any) {
         showToast(translate("Failed to fetch user profile information"));
