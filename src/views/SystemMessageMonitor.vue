@@ -198,31 +198,15 @@ const selectedIsOutgoing = ref("");
 const pageIndex = ref(0);
 const isInitialLoading = ref(true);
 
-// When direction filter is active, all fetched records are filtered client-side
-const filteredMessages = computed(() => {
-  const all = store.getSystemMessages;
-  if (!selectedIsOutgoing.value) return all;
-  return all.filter((msg: any) => msg.isOutgoing === selectedIsOutgoing.value);
-});
-
-// Paginated slice of filteredMessages
-const messages = computed(() => {
-  if (!selectedIsOutgoing.value) return filteredMessages.value; // server already paginates
-  const start = pageIndex.value * PAGE_SIZE;
-  return filteredMessages.value.slice(start, start + PAGE_SIZE);
-});
+const messages = computed(() => store.getSystemMessages);
 
 const total = computed(() => store.getSystemMessageTotal);
 const types = computed(() => store.getSystemMessageTypes);
 const parentTypes = computed(() => store.getSystemMessageParentTypes);
 const remotes = computed(() => store.getSystemMessageRemotes);
 const statuses = computed(() => utilStore.getStatusItemsByType("SystemMessage"));
-const pageCount = computed(() => {
-  if (selectedIsOutgoing.value) {
-    return Math.max(Math.ceil(filteredMessages.value.length / PAGE_SIZE), 1);
-  }
-  return Math.max(Math.ceil(total.value / PAGE_SIZE), 1);
-});
+const pageCount = computed(() => Math.max(Math.ceil(total.value / PAGE_SIZE), 1));
+const isLoading = computed(() => isInitialLoading.value || store.isFetchingMessages);
 
 const filteredTypes = computed(() => {
   if (!selectedParentTypeId.value) return types.value;
@@ -230,13 +214,9 @@ const filteredTypes = computed(() => {
 });
 
 const loadMessages = async () => {
-  // When direction filter is active, fetch a large batch for client-side pagination
-  // (the API does not support isOutgoing as a server-side filter)
-  const isDirectionFiltered = !!selectedIsOutgoing.value;
-
   const payload = {
-    pageIndex: isDirectionFiltered ? 0 : pageIndex.value,
-    pageSize: isDirectionFiltered ? 500 : PAGE_SIZE,
+    pageIndex: pageIndex.value,
+    pageSize: PAGE_SIZE,
   } as Record<string, any>;
 
   if(queryString.value.trim()) {
@@ -315,6 +295,7 @@ watch(pageIndex, () => {
 });
 
 onIonViewWillEnter(async () => {
+  isInitialLoading.value = true;
   await Promise.all([
     store.fetchSystemMessageTypes(),
     store.fetchSystemMessageRemotes(),
@@ -326,6 +307,7 @@ onIonViewWillEnter(async () => {
   selectedIsOutgoing.value = (currentQuery?.isOutgoing as string) ?? "";
 
   await loadMessages();
+  isInitialLoading.value = false;
 });
 </script>
 
