@@ -19,8 +19,6 @@ import SystemMessageTypes from '@/views/SystemMessageTypes.vue';
 import SystemMessageTypeDetail from '@/views/SystemMessageTypeDetail.vue';
 import SystemMessageRemotes from '@/views/SystemMessageRemotes.vue';
 import SystemMessageRemoteDetail from '@/views/SystemMessageRemoteDetail.vue';
-import SolrMonitoring from '@/views/SolrMonitoring.vue';
-import SolrRepair from '@/views/SolrRepair.vue';
 import Login from '@common/components/Login.vue';
 import { useUserStore } from '@/store/user';
 import { useDataDocumentGraphStore } from '@/store/dataDocumentGraph';
@@ -206,18 +204,6 @@ const routes: Array<RouteRecordRaw> = [
     component: SystemMessageDetailView,
     beforeEnter: authGuard,
     props: true
-  },
-  {
-    path: '/solr-monitoring',
-    name: 'SolrMonitoring',
-    component: SolrMonitoring,
-    beforeEnter: authGuard
-  },
-  {
-    path: '/solr-repair',
-    name: 'SolrRepair',
-    component: SolrRepair,
-    beforeEnter: authGuard
   }
 ]
 
