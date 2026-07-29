@@ -22,6 +22,9 @@ export const useUserStore = defineStore("user", {
     },
     timeZones: [] as any,
     oms: "",
+    // The app version this deployment is pinned to. undefined = not resolved yet, "" = no version
+    // configured, "vX.Y.Z" = pinned. Resolved from the OMS by useAuth().fetchAppVersion() on Login.
+    appVersion: undefined as string | undefined,
     fetchStatus: {
       profile: 'none',
       permissions: 'none'
@@ -40,6 +43,7 @@ export const useUserStore = defineStore("user", {
     getAvailableTimeZones: (state: any) => state.timeZones,
     getFetchStatus: (state: any) => state.fetchStatus,
     getSelectedSystemMessageRemoteId: (state: any) => state.selectedSystemMessageRemoteId,
+    getAppVersion: (state: any) => state.appVersion,
     getUserFullName: (state: any) => (userId: string) => state.userFullNames[userId],
     hasPermission: (state: any) => (permissionId: string): boolean => {
       const permissions = state.permissions;
@@ -340,6 +344,8 @@ export const useUserStore = defineStore("user", {
       }
     },
     async postLogout() {
+      // appVersion is preserved across this reset by useAuth().logout() (it's deployment config, not
+      // session state), so a plain $reset() is fine here.
       this.$reset();
       useUtilStore().$reset();
     }
