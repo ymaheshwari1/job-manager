@@ -29,6 +29,7 @@ import DataDocumentFeeds from '@/views/DataDocumentFeeds.vue';
 import DataDocumentFeedDetail from '@/views/DataDocumentFeedDetail.vue';
 
 import Pipeline from '@/views/Pipeline.vue';
+import Actions from "@/authorization/actions";
 
 // Defining types for the meta values
 declare module 'vue-router' {
@@ -60,7 +61,7 @@ const routes: Array<RouteRecordRaw> = [
     component: Catalog,
     beforeEnter: authGuard,
     meta: {
-      permissionId: ""
+      permissionId: Actions.APP_PRODUCT_VIEW
     }
   },
   {
