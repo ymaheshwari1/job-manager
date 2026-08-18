@@ -208,7 +208,7 @@ import {
   IonSpinner,
   onIonViewWillEnter
 } from '@ionic/vue';
-import { computed, ref } from 'vue';
+import { computed, markRaw, ref, shallowRef } from 'vue';
 import router from "@/router";
 import { translate, commonUtil } from '@common';
 import { useMdmConfigStore } from '@/store/mdmConfig';
@@ -255,7 +255,9 @@ type ParsedPayload = {
 const log = ref<any>(null);
 const payloadLoading = ref(true);
 const selectedPayload = ref<PayloadKey>("original");
-const payloads = ref<Record<PayloadKey, ParsedPayload>>({
+// shallowRef + markRaw: parsed payloads are read-only display data. A deep ref would proxy
+// every object in a large parsed file, tripling memory and slowing every property read.
+const payloads = shallowRef<Record<PayloadKey, ParsedPayload>>({
   original: createPayload(),
   errors: createPayload()
 });
@@ -371,7 +373,7 @@ async function detectAndParse(raw: string, fileName?: string): Promise<ParsedPay
       return {
         ...createPayload(fileName),
         contentType: "json",
-        parsedJson: JSON.parse(trimmed),
+        parsedJson: markRaw(JSON.parse(trimmed)),
         rawText: raw
       };
     } catch {
@@ -385,7 +387,7 @@ async function detectAndParse(raw: string, fileName?: string): Promise<ParsedPay
       return {
         ...createPayload(fileName),
         contentType: "csv",
-        csvRows: rows,
+        csvRows: markRaw(rows),
         rawText: raw
       };
     }
