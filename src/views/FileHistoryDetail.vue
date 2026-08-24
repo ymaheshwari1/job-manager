@@ -34,7 +34,7 @@
               <ion-item>
                 <ion-label class="ion-text-wrap">
                   <p>{{ translate("Status") }}</p>
-                  <ion-badge :color="getLogStatusColor(log)" style="display: inline-flex; align-items: center; gap: 4px; margin-top: 4px;">
+                  <ion-badge :color="getLogStatusColor(log)" class="status-badge">
                     <ion-icon v-if="log.statusId === 'DmlsFinished' && failedRecordCount > 0" :icon="warningOutline" />
                     <ion-icon v-else-if="['DmlsFailed', 'DmlsCrashed'].includes(log.statusId)" :icon="alertCircleOutline" />
                     {{ translate(getLogStatusLabel(log)) }}
@@ -427,6 +427,13 @@ main {
 
 .header-section {
   margin-bottom: var(--spacer-base);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
 }
 
 .header-section h2 {
