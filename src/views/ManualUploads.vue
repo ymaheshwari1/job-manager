@@ -13,19 +13,30 @@
       <main>
 
 
-        <ion-searchbar :value="queryString" @ionInput="queryString = ($event as any).detail.value || ''" :placeholder="translate('Search uploads')"></ion-searchbar>
+        <ion-card>
+          <ion-card-content>
+            <ion-searchbar :value="queryString" @ionInput="queryString = ($event as any).detail.value || ''" :placeholder="translate('Search uploads')"></ion-searchbar>
 
-        <ion-segment class="feed-filter" :value="dataFeedFilter" @ionChange="dataFeedFilter = ($event as any).detail.value">
-          <ion-segment-button value="all">
-            <ion-label>{{ translate("All") }}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="enabled">
-            <ion-label>{{ translate("Data feed on") }}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="disabled">
-            <ion-label>{{ translate("Data feed off") }}</ion-label>
-          </ion-segment-button>
-        </ion-segment>
+            <div class="filter-grid">
+              <div class="filter-item">
+                <ion-select
+                  :label="translate('Data Feed')"
+                  label-placement="stacked"
+                  interface="popover"
+                  :placeholder="translate('All')"
+                  :value="dataFeedFilter"
+                  @ionChange="dataFeedFilter = $event.detail.value"
+                >
+                  <ion-select-option value="Y">{{ translate("Enabled") }}</ion-select-option>
+                  <ion-select-option value="N">{{ translate("Disabled") }}</ion-select-option>
+                </ion-select>
+                <ion-button v-if="dataFeedFilter" fill="clear" class="clear-filter-btn" @click="dataFeedFilter = ''" :title="translate('Clear')">
+                  <ion-icon slot="icon-only" :icon="closeCircleOutline" />
+                </ion-button>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
 
         <div class="empty-state" v-if="isLoading">
           <ion-item lines="none">
@@ -66,14 +77,14 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { IonSpinner, IonPage, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonCard, IonCardContent, IonIcon, IonButton, IonSearchbar, IonLabel, IonItem, IonBadge, IonSegment, IonSegmentButton, onIonViewWillEnter } from "@ionic/vue";
-import { arrowForwardOutline } from "ionicons/icons";
+import { IonSpinner, IonPage, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonCard, IonCardContent, IonIcon, IonButton, IonSearchbar, IonLabel, IonItem, IonBadge, IonSelect, IonSelectOption, onIonViewWillEnter } from "@ionic/vue";
+import { arrowForwardOutline, closeCircleOutline } from "ionicons/icons";
 import router from "@/router";
 import { translate } from "@common";
 import { useMdmConfigStore } from "@/store/mdmConfig";
 
 const queryString = ref("");
-const dataFeedFilter = ref("all");
+const dataFeedFilter = ref("");
 const mdmStore = useMdmConfigStore();
 
 // Mirrors the server-side isDataFeedEnabled() test: only an explicit "Y" counts as on, so the
@@ -83,8 +94,8 @@ const isFeedOn = (config: any) => config.enableDataFeed === "Y";
 const configs = computed(() => mdmStore.getConfigs);
 const isLoading = computed(() => mdmStore.getFetchStatus.configs === "pending");
 
-const matchesFeedFilter = (config: any) => dataFeedFilter.value === "all" ||
-  (dataFeedFilter.value === "enabled") === isFeedOn(config);
+const matchesFeedFilter = (config: any) => !dataFeedFilter.value ||
+  (dataFeedFilter.value === "Y") === isFeedOn(config);
 
 const importConfigs = computed(() => {
   const q = queryString.value.trim().toLowerCase();
@@ -109,10 +120,6 @@ const startImport = (typeId: string) => {
 
 <style scoped>
 
-
-.feed-filter {
-  margin-bottom: var(--spacer-xs);
-}
 
 .imports {
   display: grid;
