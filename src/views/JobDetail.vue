@@ -749,7 +749,7 @@ const closeScheduleModal = () => {
   isScheduleModalOpen.value = false;
 };
 
-const toRepeatCount = (value: any) => value === "" || value === null || value === undefined ? -1 : Number(value);
+const toRepeatCount = (value: any) => value === "" || value === null || value === undefined ? value : Number(value);
 
 const saveSchedule = async () => {
   if (job.value) {
